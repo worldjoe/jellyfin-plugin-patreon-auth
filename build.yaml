@@ -1,0 +1,11 @@
+name: "Patreon Authentication"
+guid: "6f0c3a52-8d1e-4b7a-9c53-2e1d7b4a9f10"
+version: "1.0.0.0"
+targetAbi: "12.4.0.0"
+framework: "net10.0"
+overview: "Sign in to Jellyfin with Patreon"
+description: "Lets Patreon subscribers (optionally limited to specific tiers) sign in via Patreon OAuth."
+category: "Authentication"
+owner: "worldjoe"
+artifacts:
+  - "Jellyfin.Plugin.PatreonAuth.dll"

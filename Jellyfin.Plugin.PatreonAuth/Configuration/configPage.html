@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Patreon Authentication</title>
+</head>
+<body>
+<div id="PatreonAuthConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+    <div data-role="content">
+        <div class="content-primary">
+            <form id="PatreonAuthConfigForm">
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="ClientId" label="Patreon client id" />
+                </div>
+                <div class="inputContainer">
+                    <input is="emby-input" type="password" id="ClientSecret" label="Patreon client secret" />
+                </div>
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="AllowedTierIds" label="Allowed tier ids (comma-separated, empty = any active patron)" />
+                </div>
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="PublicBaseUrl" label="Public base URL (optional, e.g. https://jf.example.com)" />
+                    <div class="fieldDescription">Register <code>&lt;base url&gt;/Patreon/callback</code> as a redirect URI in your Patreon client.</div>
+                </div>
+                <label class="checkboxContainer">
+                    <input is="emby-checkbox" type="checkbox" id="CreateUsers" />
+                    <span>Create Jellyfin users for new patrons</span>
+                </label>
+                <label class="checkboxContainer">
+                    <input is="emby-checkbox" type="checkbox" id="DisableLapsedUsers" />
+                    <span>Disable the Jellyfin user when a lapsed patron tries to log in</span>
+                </label>
+                <p>Add <code>&lt;a href="/Patreon/login"&gt;Login with Patreon&lt;/a&gt;</code> to the login disclaimer under Dashboard &gt; General &gt; Branding.</p>
+                <h3>DMCA reports (Discord)</h3>
+                <label class="checkboxContainer">
+                    <input is="emby-checkbox" type="checkbox" id="DmcaEnabled" />
+                    <span>Enable DMCA report button</span>
+                </label>
+                <div class="inputContainer">
+                    <input is="emby-input" type="password" id="DiscordBotToken" label="Discord bot token" />
+                    <div class="fieldDescription">Bot needs View Channel + Send Messages in the target channel.</div>
+                </div>
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="DiscordGuildId" label="Discord guild (server) id" />
+                    <div class="fieldDescription">Reports are refused if the channel is not in this guild.</div>
+                </div>
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="DiscordChannelId" label="Discord channel id" />
+                </div>
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="DiscordMention" label="Mention (optional, e.g. &lt;@123456&gt; or &lt;@&amp;123456&gt;)" />
+                </div>
+                <button is="emby-button" type="submit" class="raised button-submit block"><span>Save</span></button>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript">
+        (function () {
+            var pluginId = '6f0c3a52-8d1e-4b7a-9c53-2e1d7b4a9f10';
+            var page = document.querySelector('#PatreonAuthConfigPage');
+            page.addEventListener('pageshow', function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(pluginId).then(function (c) {
+                    page.querySelector('#ClientId').value = c.ClientId || '';
+                    page.querySelector('#ClientSecret').value = c.ClientSecret || '';
+                    page.querySelector('#AllowedTierIds').value = c.AllowedTierIds || '';
+                    page.querySelector('#PublicBaseUrl').value = c.PublicBaseUrl || '';
+                    page.querySelector('#CreateUsers').checked = c.CreateUsers;
+                    page.querySelector('#DisableLapsedUsers').checked = c.DisableLapsedUsers;
+                    page.querySelector('#DmcaEnabled').checked = !!c.DmcaEnabled;
+                    page.querySelector('#DiscordBotToken').value = c.DiscordBotToken || '';
+                    page.querySelector('#DiscordGuildId').value = c.DiscordGuildId || '';
+                    page.querySelector('#DiscordChannelId').value = c.DiscordChannelId || '';
+                    page.querySelector('#DiscordMention').value = c.DiscordMention || '';
+                    Dashboard.hideLoadingMsg();
+                });
+            });
+            page.querySelector('#PatreonAuthConfigForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(pluginId).then(function (c) {
+                    c.ClientId = page.querySelector('#ClientId').value.trim();
+                    c.ClientSecret = page.querySelector('#ClientSecret').value;
+                    c.AllowedTierIds = page.querySelector('#AllowedTierIds').value.trim();
+                    c.PublicBaseUrl = page.querySelector('#PublicBaseUrl').value.trim();
+                    c.CreateUsers = page.querySelector('#CreateUsers').checked;
+                    c.DisableLapsedUsers = page.querySelector('#DisableLapsedUsers').checked;
+                    c.DmcaEnabled = page.querySelector('#DmcaEnabled').checked;
+                    c.DiscordBotToken = page.querySelector('#DiscordBotToken').value.trim();
+                    c.DiscordGuildId = page.querySelector('#DiscordGuildId').value.trim();
+                    c.DiscordChannelId = page.querySelector('#DiscordChannelId').value.trim();
+                    c.DiscordMention = page.querySelector('#DiscordMention').value.trim();
+                    ApiClient.updatePluginConfiguration(pluginId, c).then(Dashboard.processPluginConfigurationUpdateResult);
+                });
+                return false;
+            });
+        })();
+    </script>
+</div>
+</body>
+</html>
